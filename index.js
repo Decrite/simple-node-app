@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
+const path = require("path")
 
 // App constants
 const port = process.env.PORT || 3000;
