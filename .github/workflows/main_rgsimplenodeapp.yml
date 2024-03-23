@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - simpelNodeServer
+name: Build and deploy Node.js app to Azure Web App - rgsimplenodeapp
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       - name: npm install, build, and test
         run: |
           npm install
-          npm run build
+          npm run build --if-present
           npm run test --if-present
 
       - name: Zip artifact for deployment
@@ -57,15 +57,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_097BCA038CED4ACAA5B643301D80E83B }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_853A33A5915E44D0B8E6655F991A14D9 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B8E387679B7C47A3BB729271F34F3677 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E30E1426E0C44D0889C3445386BCDD22 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6E67F37C8D314C8C8663549FFEE39352 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4A6F9F0B98D846FD8B4175CD5E6A627A }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'simpelNodeServer'
+          app-name: 'rgsimplenodeapp'
           slot-name: 'Production'
           package: .
           
