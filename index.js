@@ -25,6 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors({ origin: /http:\/\/(127(\.\d){3}|localhost)/ }));
 app.options("*", cors());
+app.use(bodyParser.json({ limit: '50mb' }));
 
 app.delete("/deletePictureOnDevice/:id", (req, res) => {
   const { id } = req.params;
@@ -98,6 +99,17 @@ app.post("/setPicture", upload.single("image"), (req, res) => {
     pictures.push(picture);
     res.status(200).send(picture);
   });
+});
+
+app.post('/upload', (req, res) => {
+  // Access the blob data from the request body
+  const blobData = req.body;
+
+  // Process the blob data as needed
+  // For example, you could save it to a file, store it in a database, etc.
+
+  // Respond with a success message
+  res.status(200).json({ message: blobData });
 });
 
 app.listen(port, () => {
