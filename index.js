@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const multer = require('multer');
+const multer = require("multer");
 
 // App constants
 const port = process.env.PORT || 3000;
@@ -83,26 +83,42 @@ app.post("/setPicture", (req, res) => {
   res.status(200).send(picture);
 });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    // Generate a unique random number for the filename
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    // Get the file extension
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
+  },
+});
+
+const upload = multer({ storage: storage });
+
 // Set up multer for handling file uploads
-const upload = multer({ dest: 'uploads/' });
+//const upload = multer({ dest: "uploads/" });
 
 // Route to handle image upload
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post("/api/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
-    return res.status(400).send('No image file uploaded');
+    return res.status(400).send("No image file uploaded");
   }
 
   // Access the uploaded file using req.file
-  console.log('Uploaded file:', req.file);
+  console.log("Uploaded file:", req.file);
   const picture = { data: req.file, id: generateRandomString(10) };
   console.log(picture);
   pictures.push(picture);
 
   // Process the uploaded image as needed
 
-  res.status(200).send('Image uploaded successfully');
+  res.status(200).send("Image uploaded successfully");
 });
 
+app.use("/uploads", express.static("uploads"));
 
 app.post("/upload", (req, res) => {
   // Access the blob data from the request body
