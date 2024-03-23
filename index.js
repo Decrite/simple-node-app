@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const multer = require('multer');
 
 // App constants
 const port = process.env.PORT || 3000;
@@ -80,6 +81,24 @@ app.post('/setPicture', (req, res) => {
   pictures.push(picture);
   res.status(200).send(picture);
 });
+
+// Set up multer for handling file uploads
+const upload = multer({ dest: 'uploads/' });
+
+// Route to handle image upload
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No image file uploaded');
+  }
+
+  // Access the uploaded file using req.file
+  console.log('Uploaded file:', req.file);
+
+  // Process the uploaded image as needed
+
+  res.status(200).send('Image uploaded successfully');
+});
+
 
 //const multer = require("multer");
 //const upload = multer({ dest: "uploads/" });
