@@ -83,42 +83,53 @@ app.post("/setPicture", (req, res) => {
   res.status(200).send(picture);
 });
 
+
+// Configure multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    // Generate a unique random number for the filename
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    // Get the file extension
-    const ext = path.extname(file.originalname);
-    cb(null, file.fieldname + "-" + uniqueSuffix + ext);
-  },
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
 });
 
 const upload = multer({ storage: storage });
 
-// Set up multer for handling file uploads
-//const upload = multer({ dest: "uploads/" });
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Route to handle image upload
-app.post("/api/upload", upload.single("image"), (req, res) => {
+app.post('/api/upload', upload.single('image'), (req, res) => {
   if (!req.file) {
-    return res.status(400).send("No image file uploaded");
+    return res.status(400).send('No image file uploaded');
   }
-
+  
   // Access the uploaded file using req.file
-  console.log("Uploaded file:", req.file);
-  const picture = { data: req.file, id: generateRandomString(10) };
+  console.log('Uploaded file:', req.file);
+  
+  // Generate a unique ID for the image
+  const imageId = generateRandomString(10);
+  
+  // Create an object to store the image details
+  const picture = {
+    id: imageId,
+    filename: req.file.filename
+  };
+  
   console.log(picture);
   pictures.push(picture);
-
-  // Process the uploaded image as needed
-
-  res.status(200).send("Image uploaded successfully");
+  
+  // Create the URL to access the uploaded picture
+  const pictureUrl = `http://localhost:3000/uploads/${req.file.filename}`;
+  
+  // Send the response with the picture URL
+  res.status(200).json({
+    message: 'Image uploaded successfully',
+    pictureUrl: pictureUrl
+  });
 });
-
-app.use("/uploads", express.static("uploads"));
 
 app.post("/upload", (req, res) => {
   // Access the blob data from the request body
