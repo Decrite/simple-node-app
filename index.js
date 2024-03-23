@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
-const path = require("path")
+const path = require("path");
 
 // App constants
 const port = process.env.PORT || 3000;
@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 app.use(cors({ origin: "*" }));
 app.options("*", cors());
 app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 
 app.delete("/deletePicture/:id", (req, res) => {
@@ -65,25 +66,28 @@ app.delete('/api/delete/:filename', (req, res) => {
 // Configure multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+    );
+  },
 });
 
 const upload = multer({ storage: storage });
 
 // Serve static files from the "uploads" directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Route to handle image upload
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post("/api/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
-    return res.status(400).send('No image file uploaded');
+    return res.status(400).send("No image file uploaded");
   }
-  
+
   // Access the uploaded file using req.file
   console.log('Uploaded file:', req.file);
   
@@ -92,11 +96,11 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   
   // Create the URL to access the uploaded picture
   const pictureUrl = `http://localhost:3000/uploads/${req.file.filename}`;
-  
+
   // Send the response with the picture URL
   res.status(200).json({
-    message: 'Image uploaded successfully',
-    pictureUrl: pictureUrl
+    message: "Image uploaded successfully",
+    pictureUrl: pictureUrl,
   });
 });
 
