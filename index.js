@@ -43,6 +43,26 @@ app.get('/getPicturesOnDevice', (_req, res) => {
   res.json(pictures);
 });
 
+app.post('/setPictureOnDevice', (req, res) => {
+  if (!req.body ) {
+    res.status(400).send({error: "Bad request: 'data' field is required."});
+    return;
+  }
+  const id = generateRandomString(10);
+  const pictureData = req.body;
+  const picturePath = path.join(__dirname, 'pictures', `${id}.png`);
+
+  fs.writeFile(picturePath, pictureData, 'base64', err => {
+    if (err) {
+      console.error('Error saving picture:', err);
+      res.status(500).send({ error: 'Failed to save picture.' });
+    } else {
+      pictures.push({ id });
+      res.status(200).send({ message: 'Picture added successfully.' });
+    }
+  });
+});
+
 
 app.delete('/deletePicture/:id', (req, res) => {
   const { id } = req.params;
@@ -62,7 +82,7 @@ app.post('/setPicture', (req, res) => {
   const picture = { data: req.body, id: generateRandomString(10) };
   console.log(picture)
   pictures.push(picture);
-  res.status(200).send({ message: 'Picture added successfully.' });
+  res.status(200).send(picture);
 });
 
 app.listen(port, () => {
