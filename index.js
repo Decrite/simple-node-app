@@ -6,20 +6,8 @@ const path = require("path")
 
 // App constants
 const port = process.env.PORT || 3000;
-const apiPrefix = "/api";
 
 let pictures = [];
-
-function generateRandomString(length) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters.charAt(randomIndex);
-  }
-  return randomString;
-}
 
 // Create the Express app & setup middlewares
 const app = express();
@@ -29,37 +17,6 @@ app.use(cors({ origin: "*" }));
 app.options("*", cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 
-app.delete("/deletePictureOnDevice/:id", (req, res) => {
-  const { id } = req.params;
-  pictures = pictures.filter((picture) => picture.id !== id);
-  deletePictureFromLocalStorage(id);
-  res.status(200).send({ message: "Picture removed successfully." });
-});
-
-app.get("/getPicturesOnDevice", (_req, res) => {
-  loadPicturesFromLocalStorage();
-  res.json(pictures);
-});
-
-app.post("/setPictureOnDevice", (req, res) => {
-  if (!req.body) {
-    res.status(400).send({ error: "Bad request: 'data' field is required." });
-    return;
-  }
-  const id = generateRandomString(10);
-  const pictureData = req.body;
-  const picturePath = path.join(__dirname, "pictures", `${id}.png`);
-
-  fs.writeFile(picturePath, pictureData, "base64", (err) => {
-    if (err) {
-      console.error("Error saving picture:", err);
-      res.status(500).send({ error: "Failed to save picture." });
-    } else {
-      pictures.push({ id });
-      res.status(200).send({ message: "Picture added successfully." });
-    }
-  });
-});
 
 app.delete("/deletePicture/:id", (req, res) => {
   const { id } = req.params;
@@ -71,19 +28,39 @@ app.get("/getPictures", (_req, res) => {
   res.json(pictures);
 });
 
-app.post("/setPicture", (req, res) => {
-  if (!req.body.data) {
-    res
-      .status(400)
-      .send({ error: "Bad request: 'data' and 'id' fields are required." });
-    return;
-  }
-  const picture = { data: req.body.data, id: generateRandomString(10) };
-  console.log(picture);
-  pictures.push(picture);
-  res.status(200).send(picture);
-});
 
+app.delete('/api/delete/:filename', (req, res) => {
+  const { filename } = req.params;
+
+  // Construct the file path
+  const filePath = path.join(__dirname, 'uploads', filename);
+
+  // Check if the file exists
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error('File does not exist:', err);
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    // Delete the file
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Error deleting file:', err);
+        return res.status(500).json({ error: 'Error deleting file' });
+      }
+
+      console.log('File deleted successfully');
+
+      // Remove the picture from the pictures array
+      const index = pictures.findIndex((picture) => picture.filename === filename);
+      if (index !== -1) {
+        pictures.splice(index, 1);
+      }
+
+      res.status(200).json({ message: 'File deleted successfully' });
+    });
+  });
+});
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -110,17 +87,8 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   // Access the uploaded file using req.file
   console.log('Uploaded file:', req.file);
   
-  // Generate a unique ID for the image
-  const imageId = generateRandomString(10);
   
-  // Create an object to store the image details
-  const picture = {
-    id: imageId,
-    filename: req.file.filename
-  };
-  
-  console.log(picture);
-  pictures.push(picture);
+  pictures.push(req.file.filename);
   
   // Create the URL to access the uploaded picture
   const pictureUrl = `http://localhost:3000/uploads/${req.file.filename}`;
@@ -132,16 +100,6 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
   });
 });
 
-app.post("/upload", (req, res) => {
-  // Access the blob data from the request body
-  const blobData = req.body;
-
-  // Process the blob data as needed
-  // For example, you could save it to a file, store it in a database, etc.
-
-  // Respond with a success message
-  res.status(200).json({ message: blobData });
-});
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
