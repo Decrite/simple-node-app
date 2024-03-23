@@ -69,7 +69,7 @@ app.get("/getPictures", (_req, res) => {
   res.json(pictures);
 });
 
-/*
+
 app.post('/setPicture', (req, res) => {
   if (!req.body.data ) {
     res.status(400).send({error: "Bad request: 'data' and 'id' fields are required."});
@@ -79,27 +79,27 @@ app.post('/setPicture', (req, res) => {
   console.log(picture)
   pictures.push(picture);
   res.status(200).send(picture);
-});*/
-
-const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
-
-app.post("/setPicture", upload.single("image"), (req, res) => {
-  const id = generateRandomString(10);
-  const picturePath = `pictures/${id}.png`;
-
-  // req.file enthält die Blob-Daten
-  fs.rename(req.file.path, picturePath, (err) => {
-    if (err) {
-      console.error("Error saving picture:", err);
-      return res.status(500).send({ error: "Failed to save picture." });
-    }
-
-    const picture = { id, path: picturePath };
-    pictures.push(picture);
-    res.status(200).send(picture);
-  });
 });
+
+//const multer = require("multer");
+//const upload = multer({ dest: "uploads/" });
+//
+//app.post("/setPicture", upload.single("image"), (req, res) => {
+//  const id = generateRandomString(10);
+//  const picturePath = `pictures/${id}.png`;
+//
+//  // req.file enthält die Blob-Daten
+//  fs.rename(req.file.path, picturePath, (err) => {
+//    if (err) {
+//      console.error("Error saving picture:", err);
+//      return res.status(500).send({ error: "Failed to save picture." });
+//    }
+//
+//    const picture = { id, path: picturePath };
+//    pictures.push(picture);
+//    res.status(200).send(picture);
+//  });
+//});
 
 app.post('/upload', (req, res) => {
   // Access the blob data from the request body
