@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require('multer');
+const path = require('path');
 
 // App constants
 const port = process.env.PORT || 3000;
@@ -84,9 +85,16 @@ app.post("/setPicture", (req, res) => {
 });
 
 // Set up multer for handling file uploads
-const upload = multer({ dest: 'uploads/' });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+const upload = multer({ storage: storage });
 
-// Route to handle image upload
 app.post('/api/upload', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No image file uploaded');
@@ -94,13 +102,9 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 
   // Access the uploaded file using req.file
   console.log('Uploaded file:', req.file);
-  const picture = { data: req.file, id: generateRandomString(10) };
-  console.log(picture);
-  pictures.push(picture);
 
-  // Process the uploaded image as needed
-
-  res.status(200).send('Image uploaded successfully');
+  // Send the uploaded image back in the response
+  res.sendFile(req.file.path);
 });
 
 
