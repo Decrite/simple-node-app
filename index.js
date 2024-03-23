@@ -94,6 +94,9 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 
   // Access the uploaded file using req.file
   console.log('Uploaded file:', req.file);
+  const picture = { data: req.file, id: generateRandomString(10) };
+  console.log(picture);
+  pictures.push(picture);
 
   // Process the uploaded image as needed
 
