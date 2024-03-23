@@ -82,6 +82,10 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
 });
 
 
+app.get("/", (_req, res) => {
+  res.redirect('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+});
+
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
