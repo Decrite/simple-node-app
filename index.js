@@ -24,9 +24,9 @@ function generateRandomString(length) {
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cors({ origin: /http:\/\/(127(\.\d){3}|localhost)/ }));
+app.use(cors({ origin: "*" }));
 app.options("*", cors());
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: "50mb" }));
 
 app.delete("/deletePictureOnDevice/:id", (req, res) => {
   const { id } = req.params;
@@ -70,14 +70,15 @@ app.get("/getPictures", (_req, res) => {
   res.json(pictures);
 });
 
-
-app.post('/setPicture', (req, res) => {
-  if (!req.body.data ) {
-    res.status(400).send({error: "Bad request: 'data' and 'id' fields are required."});
+app.post("/setPicture", (req, res) => {
+  if (!req.body.data) {
+    res
+      .status(400)
+      .send({ error: "Bad request: 'data' and 'id' fields are required." });
     return;
   }
   const picture = { data: req.body.data, id: generateRandomString(10) };
-  console.log(picture)
+  console.log(picture);
   pictures.push(picture);
   res.status(200).send(picture);
 });
@@ -100,27 +101,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 });
 
 
-//const multer = require("multer");
-//const upload = multer({ dest: "uploads/" });
-//
-//app.post("/setPicture", upload.single("image"), (req, res) => {
-//  const id = generateRandomString(10);
-//  const picturePath = `pictures/${id}.png`;
-//
-//  // req.file enthält die Blob-Daten
-//  fs.rename(req.file.path, picturePath, (err) => {
-//    if (err) {
-//      console.error("Error saving picture:", err);
-//      return res.status(500).send({ error: "Failed to save picture." });
-//    }
-//
-//    const picture = { id, path: picturePath };
-//    pictures.push(picture);
-//    res.status(200).send(picture);
-//  });
-//});
-
-app.post('/upload', (req, res) => {
+app.post("/upload", (req, res) => {
   // Access the blob data from the request body
   const blobData = req.body;
 
