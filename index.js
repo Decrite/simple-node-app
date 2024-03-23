@@ -20,11 +20,6 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 
-app.delete("/deletePicture/:id", (req, res) => {
-  const { id } = req.params;
-  pictures = pictures.filter((picture) => picture.id !== id);
-  res.status(200).send({ message: "Picture removed successfully." });
-});
 
 app.get("/getPictures", (_req, res) => {
   res.json(pictures);
@@ -50,7 +45,8 @@ app.delete('/api/delete/:filename', (req, res) => {
         console.error('Error deleting file:', err);
         return res.status(500).json({ error: 'Error deleting file' });
       }
-
+      pictures = pictures.filter(picture => filename !== picture)
+      
       console.log('File deleted successfully');
 
       // Remove the picture from the pictures array
