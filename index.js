@@ -75,11 +75,11 @@ app.get('/getPictures', (_req, res) => {
 });
 
 app.post('/setPicture', (req, res) => {
-  if (!req.body ) {
+  if (!req.body.data ) {
     res.status(400).send({error: "Bad request: 'data' and 'id' fields are required."});
     return;
   }
-  const picture = { data: req.body, id: generateRandomString(10) };
+  const picture = { data: req.body.data, id: generateRandomString(10) };
   console.log(picture)
   pictures.push(picture);
   res.status(200).send(picture);
